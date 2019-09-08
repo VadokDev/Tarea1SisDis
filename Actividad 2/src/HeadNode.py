@@ -17,12 +17,15 @@ class ClientServerThread(threading.Thread):
         msg = ""
 
         while(msg != "Terminar"):
-            data = self.clientSocket.recv(1024)
-            msg = data.decode("utf-8")
-
+            msg = self.clientSocket.recv(1024).decode("utf-8")
             print(f"[Cliente {self.clientAddress}] {msg}")
 
-            self.clientSocket.send(bytes("Mensaje recibido", "utf-8"))
+            # envio respuesta:
+            try:
+                self.clientSocket.send(bytes("Mensaje recibido", "utf-8"))
+            except BrokenPipeError as e:
+                break # de no poder mandar mensajes, termino la conexión
+        # termino la conexion
         print(f"[Cliente {self.clientAddress}] conexión terminada!")
         self.clientSocket.close()
 
@@ -33,7 +36,19 @@ def Server():
     print("[Server] on")
     while True:
         clientSocket, clientAddress =  server.accept()
-        newthread = ClientServerThread(clientAddress, clientSocket)
-        newthread.start()
+        
+        # 2-step handshake
+        
+        tipo = clientSocket.recv(1024).decode("utf-8") # recibo
+        clientSocket.send(bytes(f"Hola {tipo}", "utf-8")) # envio
+        # dependiendo del tipo interactua con un thread
+        if tipo == "Cliente":
+            newthread = ClientServerThread(clientAddress, clientSocket)
+            newthread.start()
+        elif tipo == "Data":
+            continue
+        else:
+            print(f"Error al intentar el handshake con {clientAddress}")
+        
 
 Server()
