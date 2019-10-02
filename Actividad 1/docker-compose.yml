@@ -1,0 +1,24 @@
+version: '3'
+
+services: 
+  server:
+    build: 
+      context: ./Servidor
+    command: python HeadNode.py
+    ports:
+      - "5000:5000"
+    volumes:
+      - ./Servidor:/usr/bin/app
+    stdin_open: true
+    tty: true
+
+  client:
+    build:
+      context: ./Cliente
+    command: python Cliente.py
+    volumes:
+      - ./Cliente:/usr/bin/app
+    links:
+      - "server"
+    depends_on:
+      - server
