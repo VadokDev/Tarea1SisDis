@@ -33,6 +33,7 @@ class HearBeat(threading.Thread):
             # envio el mensaje
             dataSocket.send(bytes(msg, "utf-8"))
             respuesta = dataSocket.recv(1024).decode("utf-8") # recibo el mensaje
+            print(f"Comunicacion de {dataAddress}: {msg}")
         except BrokenPipeError as e:
             self.lista.remove((dataSocket, dataAddress))
             print(f"Cerre conexión con: {dataAddress}")
