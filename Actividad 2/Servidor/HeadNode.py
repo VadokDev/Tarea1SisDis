@@ -37,16 +37,21 @@ def Server():
     while True:
         clientSocket, clientAddress =  server.accept()
         
-        # 2-step handshake
+        # 3-step handshake
         
-        tipo = clientSocket.recv(1024).decode("utf-8") # recibo
-        clientSocket.send(bytes(f"Hola {tipo}", "utf-8")) # envio
+        msg = clientSocket.recv(1024).decode("utf-8") # recibo
+        clientSocket.send(bytes("Hola", "utf-8")) # envio
+        tipo = clientSocket.recv(1024).decode("utf-8") # recibo el tipo
+
         # dependiendo del tipo interactua con un thread
         if tipo == "Cliente":
             newthread = ClientServerThread(clientAddress, clientSocket)
             newthread.start()
         elif tipo == "Data":
-            continue
+            arch = open("test.txt", "a")
+            arch.write(f"Entro el Data {clientAddress}\n")
+            arch.close()
+            clientSocket.close()
         else:
             print(f"Error al intentar el handshake con {clientAddress}")
         
