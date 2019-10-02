@@ -16,6 +16,7 @@ while msg != "Terminar":
 
     msg = datanode.recv(1024).decode("utf-8") # recibo un mensaje del server
 
+    #print(f"Mensaje recibido: {msg}")
     # recibo heartbeat
     if msg == "hearbeat":
         datanode.send(bytes("I'm fine", "utf-8"))
