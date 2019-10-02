@@ -2,6 +2,7 @@ import socket, threading
 import _thread
 import time
 import random
+import logging
 
 LOCALHOST = "0.0.0.0"
 DATASERVER_PORT = 5000
@@ -21,10 +22,13 @@ class HearBeat(threading.Thread):
                     # envio el mensaje
                     dataSocket.send(bytes("hearbeat", "utf-8"))
                     msg = dataSocket.recv(1024).decode("utf-8") # recibo el mensaje
-                    print(f"Comunicacion de {dataAddress}: {msg}")
+                    #print(f"Comunicacion de {dataAddress}: {msg}")
+                    archivo = open("hearbeat_server.txt", "a")
+                    archivo.write(f"{dataAddress}\n")
+                    archivo.close()
                 except BrokenPipeError as e:
                     self.lista.remove((dataSocket, dataAddress))
-                    print(f"Cerre conexión con: {dataAddress}")
+                    print(f"[Cliente {dataAddress}] conexión terminada!")
 
     def enviar(self, mensaje):
         dataSocket, dataAddress = random.choice(self.lista) # elijo uno de los 3
@@ -33,11 +37,12 @@ class HearBeat(threading.Thread):
             # envio el mensaje
             dataSocket.send(bytes(msg, "utf-8"))
             respuesta = dataSocket.recv(1024).decode("utf-8") # recibo el mensaje
-            print(f"Comunicacion de {dataAddress}: {respuesta}")
+            #print(f"Comunicacion de {dataAddress}: {respuesta}")
+            return dataAddress
         except BrokenPipeError as e:
             self.lista.remove((dataSocket, dataAddress))
-            print(f"Cerre conexión con: {dataAddress}")
-            self.enviar(mensaje) # de fallar intento con otro
+            print(f"[Cliente {dataAddress}] conexión terminada!")
+            return self.enviar(mensaje) # de fallar intento con otro
 
 # clase que interactua con los clientes
 class ClientServerThread(threading.Thread):
@@ -47,20 +52,25 @@ class ClientServerThread(threading.Thread):
         self.clientAddress = clientAddress
         self.hearBeat = hearBeat
 
-        print(f"[Cliente] Conexión desde {self.clientAddress} establecida!")
+        #print(f"[Cliente] Conexión desde {self.clientAddress} establecida!")
 
     def run(self):
         msg = ""
 
         while(msg != "Terminar"):
             msg = self.clientSocket.recv(1024).decode("utf-8")
-            print(f"[Cliente {self.clientAddress}] {msg}")
+            #print(f"[Cliente {self.clientAddress}] {msg}")
 
             # almaceno el mensaje
-            self.hearBeat.enviar(msg)
+            address = self.hearBeat.enviar(msg)
+
+            # guardo en archivo
+            archivo = open("registro_server.txt", "a")
+            archivo.write(f"{address} guardo mensaje de {self.clientAddress}\n")
+
             # envio respuesta:
             try:
-                self.clientSocket.send(bytes("Mensaje recibido", "utf-8"))
+                self.clientSocket.send(bytes(f"Ok {address}", "utf-8"))
             except BrokenPipeError as e:
                 break # de no poder mandar mensajes, termino la conexión
         # termino la conexion
@@ -72,7 +82,8 @@ def Server():
     # inicializo el server
     server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     server.bind((LOCALHOST, DATASERVER_PORT))
-    server.listen(3)
+    server.listen(5)
+
     # creo el HearBeat de DataNodes
     list_data = list() # guardo los DataNode que tenga
     hear = HearBeat(list_data)

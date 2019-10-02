@@ -39,8 +39,10 @@ while msg != "Terminar":
     #envio al server
     cliente.send(bytes(msg, "utf-8"))
 
-    data = cliente.recv(1024)
-    print(data.decode("utf-8"))
+    data = cliente.recv(1024).decode("utf-8")
+    archivo = open("registro_cliente.txt", "a")
+    archivo.write(f"{data[3:]} - {msg} \n")
+    archivo.close()
     time.sleep(0.1)
 
 print("Adios!")
