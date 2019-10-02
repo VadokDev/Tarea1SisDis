@@ -4,6 +4,7 @@
 - Sebastián Godínez 201673520-8
 
 ## Consideraciones:
+- Para compilar y ejecutar se tiene que hacer dentro de la carpeta de la Actividad a evaluar.
 ### Actividad 1:
 - El archivo *log.txt* se guarda en la carpeta "Servidor" y el archivo *respuestas.txt* se guarda en la carpeta "Cliente".
 - Los archivos no se borran una vez terminada la conexión, por lo que ante una nueva ejecución se guarda abajo de lo ya existente.
