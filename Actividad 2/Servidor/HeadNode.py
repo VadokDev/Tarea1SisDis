@@ -107,6 +107,7 @@ def Server():
             list_data.append((clientSocket, clientAddress))
         else:
             print(f"Error al intentar el handshake con {clientAddress}")
+            clientSocket.close()
         
 
 Server()
