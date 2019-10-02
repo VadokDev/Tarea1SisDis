@@ -9,3 +9,14 @@ services:
       - "5000:5000"
     volumes:
       - .:/Servidor
+
+  data:
+    build:
+      context: ./Almacenamiento
+    command: python DataNode.py
+    volumes:
+      - .:/Almacenamiento
+    links:
+      - "server"
+    depends_on:
+      - server
