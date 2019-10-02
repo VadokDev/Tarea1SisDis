@@ -8,7 +8,7 @@ services:
     ports:
       - "5000:5000"
     volumes:
-      - .:/Servidor
+      - ./Servidor:/usr/bin/app
     stdin_open: true
     tty: true
 
@@ -17,7 +17,7 @@ services:
       context: ./Almacenamiento
     command: python DataNode.py
     volumes:
-      - .:/Almacenamiento
+      - ./Almacenamiento:/usr/bin/app
     links:
       - "server"
     depends_on:
@@ -28,7 +28,7 @@ services:
       context: ./Cliente
     command: python Cliente.py
     volumes:
-      - .:/Cliente
+      - ./Cliente:/usr/bin/app
     links:
       - "server"
     depends_on:

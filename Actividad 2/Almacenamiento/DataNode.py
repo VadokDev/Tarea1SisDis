@@ -23,7 +23,7 @@ while msg != "Terminar":
     # en cambio, si es un mensaje:
     elif msg[:7] == "mensaje":
         archivo = open("data.txt", "a")
-        archivo.write(msg[8:] + "\n")
+        archivo.write(f"{socket.gethostbyname(socket.gethostname())} - {msg[8:]}\n")
         archivo.close()
         datanode.send(bytes("It's fine", "utf-8"))
 

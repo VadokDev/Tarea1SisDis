@@ -67,7 +67,7 @@ class ClientServerThread(threading.Thread):
             # guardo en archivo
             archivo = open("registro_server.txt", "a")
             archivo.write(f"{address} guardo mensaje de {self.clientAddress}\n")
-
+            archivo.close()
             # envio respuesta:
             try:
                 self.clientSocket.send(bytes(f"Ok {address}", "utf-8"))
