@@ -11,7 +11,7 @@ services:
       - .:/Servidor
     stdin_open: true
     tty: true
-    
+
   data:
     build:
       context: ./Almacenamiento
@@ -21,4 +21,16 @@ services:
     links:
       - "server"
     depends_on:
+      - server
+
+  client:
+    build:
+      context: ./Cliente
+    command: python Cliente.py
+    volumes:
+      - .:/Cliente
+    links:
+      - "server"
+    depends_on:
+      - data
       - server
