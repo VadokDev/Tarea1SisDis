@@ -1,6 +1,7 @@
 import socket
 import random
 import time
+import logging
 
 # guardo en una lista distintas frases que enviara el cliente
 def procesamiento():
@@ -18,6 +19,12 @@ def procesamiento():
 SERVERIP = "server"
 DATASERVER_PORT = 5000
 MENSAJE = procesamiento()
+
+# logs
+logging.basicConfig(filename='respuesta.txt', format='[%(asctime)s] - %(message)s'
+, datefmt='%H:%M:%S'
+, level=logging.INFO
+, filemode='a')
 
 cliente = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 cliente.connect((SERVERIP, DATASERVER_PORT))
@@ -40,9 +47,7 @@ while msg != "Terminar":
     cliente.send(bytes(msg, "utf-8"))
 
     data = cliente.recv(1024).decode("utf-8")
-    archivo = open("respuesta.txt", "a")
-    archivo.write(f"{data}\n")
-    archivo.close()
+    logging.info(f"{data}") # escribo la respuesta del server
     time.sleep(0.1)
 
 print("Adios!")

@@ -24,9 +24,8 @@ class ClientServerThread(threading.Thread):
             #print(f"[Cliente {self.clientAddress}] {msg}")
 
             # guardo en archivo
-            archivo = open("log.txt", "a")
-            archivo.write(f"{self.clientAddress} - {msg}\n")
-            archivo.close()
+            logging.info(f"{self.clientAddress[0]}:{self.clientAddress[1]} - {msg}")
+
             # envio respuesta:
             try:
                 self.clientSocket.send(bytes(f"Ok", "utf-8"))
@@ -38,6 +37,12 @@ class ClientServerThread(threading.Thread):
                 
 # funcion main        
 def Server():
+    # configuracion de logs
+    logging.basicConfig(filename='log.txt', format='[%(asctime)s] - %(message)s'
+    , datefmt='%H:%M:%S'
+    , level=logging.INFO
+    , filemode='a')
+
     # inicializo el server
     server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     server.bind((LOCALHOST, DATASERVER_PORT))

@@ -23,12 +23,11 @@ class HearBeat(threading.Thread):
                     dataSocket.send(bytes("hearbeat", "utf-8"))
                     msg = dataSocket.recv(1024).decode("utf-8") # recibo el mensaje
                     #print(f"Comunicacion de {dataAddress}: {msg}")
-                    archivo = open("hearbeat_server.txt", "a")
-                    archivo.write(f"{dataAddress}\n")
-                    archivo.close()
+                    logging.info(f"{dataAddress[0]}:{dataAddress[1]}")
                 except BrokenPipeError as e:
                     self.lista.remove((dataSocket, dataAddress))
-                    print(f"[Cliente {dataAddress}] conexión terminada!")
+                    logging.info(f"Termino conexion de {dataAddress[0]}:{dataAddress[1]}")
+                    print(f"[Data {dataAddress[0]}:{dataAddress[1]}] conexión terminada!")
 
     def enviar(self, mensaje):
         dataSocket, dataAddress = random.choice(self.lista) # elijo uno de los 3
@@ -41,7 +40,7 @@ class HearBeat(threading.Thread):
             return dataAddress
         except BrokenPipeError as e:
             self.lista.remove((dataSocket, dataAddress))
-            print(f"[Cliente {dataAddress}] conexión terminada!")
+            print(f"[Cliente {dataAddress[0]}:{dataAddress[1]}] conexión terminada!")
             return self.enviar(mensaje) # de fallar intento con otro
 
 # clase que interactua con los clientes
@@ -65,9 +64,9 @@ class ClientServerThread(threading.Thread):
             address = self.hearBeat.enviar(msg)
 
             # guardo en archivo
-            archivo = open("registro_server.txt", "a")
-            archivo.write(f"{address} guardo mensaje de {self.clientAddress}\n")
-            archivo.close()
+            arch = open("registro_server.txt", "a")
+            arch.write(f"{time.ctime()} - {address[0]}:{address[1]} guardo mensaje de {self.clientAddress[0]}:{self.clientAddress[1]}\n")
+            arch.close()
             # envio respuesta:
             try:
                 self.clientSocket.send(bytes(f"Ok {address}", "utf-8"))
@@ -79,10 +78,17 @@ class ClientServerThread(threading.Thread):
                 
 # funcion main        
 def Server():
+    # creo los logs
+    logging.basicConfig(filename='hearbeat_server.txt'
+    , format='[%(asctime)s] - %(message)s'
+    , datefmt='%H:%M:%S'
+    , level=logging.INFO
+    , filemode='a')
+
     # inicializo el server
     server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     server.bind((LOCALHOST, DATASERVER_PORT))
-    server.listen(5)
+    server.listen(15)
 
     # creo el HearBeat de DataNodes
     list_data = list() # guardo los DataNode que tenga
